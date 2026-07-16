@@ -16,7 +16,7 @@
             align-items: center;
             background-color: #0c0c0c;
             overflow-x: hidden;
-            transition: background 0.5s ease;
+            user-select: none;
         }
 
         .main-container {
@@ -27,23 +27,89 @@
             perspective: 1000px;
         }
 
-        .menu-preview-container {
+        .comparison-slider {
             position: relative;
-            width: 500px; 
-            height: 420px;
-            background-size: cover;
-            background-position: center;
+            width: 640px;
+            height: 360px;
             box-shadow: 0 10px 30px rgba(0, 255, 102, 0.1);
             border: 1px solid #222;
             border-radius: 4px;
-            background-image: url('image_3.png'); 
-            transition: transform 0.1s ease-out, box-shadow 0.2s ease, filter 0.3s ease;
-            transform-style: preserve-3d;
-            will-change: transform;
+            overflow: hidden;
         }
 
-        .menu-preview-container:hover {
-            box-shadow: 0 15px 40px rgba(0, 255, 102, 0.2);
+        .image-before, .image-after {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: left center;
+        }
+
+        .image-before {
+            background-image: url('before.jpg');
+        }
+
+        .image-after {
+            background-image: url('after.jpg');
+            width: 50%; 
+        }
+
+        .slider-handle {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            background: #00ff66;
+            cursor: ew-resize;
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(0, 255, 102, 0.8);
+        }
+
+        .slider-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 32px;
+            height: 32px;
+            background: #111;
+            border: 2px solid #00ff66;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00ff66;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
+            pointer-events: none;
+        }
+
+        .label {
+            position: absolute;
+            bottom: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 11px;
+            letter-spacing: 1px;
+            z-index: 5;
+            border: 1px solid #222;
+        }
+
+        .label-before {
+            left: 15px;
+            color: #888;
+        }
+
+        .label-after {
+            right: 15px;
+            color: #00ff66;
+            text-shadow: 0 0 5px rgba(0, 255, 102, 0.5);
         }
 
         .pun .inbox p a {
@@ -66,9 +132,8 @@
             border: 1px solid #222;
             padding: 20px;
             border-radius: 4px;
-            width: 460px;
+            width: 640px;
             box-sizing: border-box;
-            transition: border-color 0.5s ease, box-shadow 0.5s ease;
         }
         .pun .inbox {
             text-align: center;
@@ -89,16 +154,6 @@
             line-height: 1.6;
             box-shadow: inset 0 0 10px rgba(0, 255, 102, 0.05);
         }
-
-        .easter-egg-active {
-            animation: matrix-glitch 0.15s infinite;
-        }
-
-        @keyframes matrix-glitch {
-            0% { filter: hue-rotate(0deg) saturate(1); }
-            50% { filter: hue-rotate(180deg) saturate(2) contrast(1.5); }
-            100% { filter: hue-rotate(360deg) saturate(1); }
-        }
     </style>
 </head>
 
@@ -110,16 +165,26 @@
             <div id="brdmain">
                 <div class="main-container">
                     
-                    <div class="menu-preview-container" id="interactive-card"></div>
+                    <div class="comparison-slider" id="slider-container">
+                        <div class="image-before">
+                            <span class="label label-before">DEFAULT GAME</span>
+                        </div>
+                        <div class="image-after" id="after-image">
+                            <span class="label label-after">VISUALS ACTIVE</span>
+                        </div>
+                        <div class="slider-handle" id="drag-line">
+                            <div class="slider-button">&lt;&gt;</div>
+                        </div>
+                    </div>
 
                     <div class="block">
-                        <h2 id="title-header">Status</h2>
-                        <div class="box" id="main-box">
+                        <h2>Status</h2>
+                        <div class="box">
                             <div class="inbox">
                                 <div style="margin-bottom: 15px; font-weight: bold; font-size: 14px;">
-                                    Status: <span id="status-text" style="color: #2ecc71; text-shadow: 0 0 5px rgba(46, 204, 113, 0.4); transition: all 0.3s ease;">● UNDETECTED</span>
+                                    Status: <span style="color: #2ecc71; text-shadow: 0 0 5px rgba(46, 204, 113, 0.4);">● UNDETECTED</span>
                                 </div>
-                                <p id="welcome-text">Welcome to GameSense Revive — redesigned, rebuilt, and ready.</p>
+                                <p>Welcome to GameSense Revive — redesigned, rebuilt, and ready.</p>
                                 <br>
                                 <p><a href="https://discord.gg/MPqZ9McqSA">Join us on discord</a></p>
                                 <br>
@@ -137,22 +202,37 @@
     </div>
 
     <script>
-        const card = document.getElementById('interactive-card');
-        const container = document.querySelector('.main-container');
+        const slider = document.getElementById('slider-container');
+        const afterImage = document.getElementById('after-image');
+        const dragLine = document.getElementById('drag-line');
 
-        container.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left - (rect.width / 2);
-            const y = e.clientY - rect.top - (rect.height / 2);
-            
-            const rotateX = -(y / (rect.height / 2)) * 10;
-            const rotateY = (x / (rect.width / 2)) * 10;
+        function moveSlider(x) {
+            const rect = slider.getBoundingClientRect();
+            let position = ((x - rect.left) / rect.width) * 100;
 
-            card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+            if (position < 0) position = 0;
+            if (position > 100) position = 100;
+
+            afterImage.style.width = `${position}%`;
+            dragLine.style.left = `${position}%`;
+        }
+
+        let isDragging = false;
+
+        slider.addEventListener('mousedown', () => isDragging = true);
+        window.addEventListener('mouseup', () => isDragging = false);
+
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            moveSlider(e.clientX);
         });
 
-        container.addEventListener('mouseleave', () => {
-            card.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+        slider.addEventListener('touchstart', () => isDragging = true);
+        window.addEventListener('touchend', () => isDragging = false);
+
+        slider.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            moveSlider(e.touches[0].clientX);
         });
 
         document.getElementById('download-btn').addEventListener('click', function(e) {
@@ -193,63 +273,6 @@
                 }
             }, 800);
         });
-
-        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight'];
-        let konamiIndex = 0;
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === konamiCode[konamiIndex]) {
-                konamiIndex++;
-                if (konamiIndex === konamiCode.length) {
-                    triggerEasterEgg();
-                    konamiIndex = 0;
-                }
-            } else {
-                konamiIndex = 0;
-            }
-        });
-
-        function triggerEasterEgg() {
-            const statusText = document.getElementById('status-text');
-            const mainBox = document.getElementById('main-box');
-            const welcomeText = document.getElementById('welcome-text');
-            const titleHeader = document.getElementById('title-header');
-
-            document.body.classList.add('easter-egg-active');
-            card.classList.add('easter-egg-active');
-            
-            statusText.style.color = '#ff0055';
-            statusText.style.textShadow = '0 0 10px #ff0055';
-            statusText.innerText = '● GOD MODE ACTIVATED';
-            
-            mainBox.style.borderColor = '#ff0055';
-            mainBox.style.boxShadow = '0 0 20px rgba(255, 0, 85, 0.3)';
-            
-            titleHeader.innerText = 'FATALITY';
-            welcomeText.innerText = 'You have unlocked the secret state. Tap any key to restore reality.';
-
-            document.addEventListener('keydown', restoreReality, { once: true });
-        }
-
-        function restoreReality() {
-            const statusText = document.getElementById('status-text');
-            const mainBox = document.getElementById('main-box');
-            const welcomeText = document.getElementById('welcome-text');
-            const titleHeader = document.getElementById('title-header');
-
-            document.body.classList.remove('easter-egg-active');
-            card.classList.remove('easter-egg-active');
-
-            statusText.style.color = '#2ecc71';
-            statusText.style.textShadow = '0 0 5px rgba(46, 204, 113, 0.4)';
-            statusText.innerText = '● UNDETECTED';
-
-            mainBox.style.borderColor = '#222';
-            mainBox.style.boxShadow = 'none';
-
-            titleHeader.innerText = 'Status';
-            welcomeText.innerText = 'Welcome to GameSense Revive — redesigned, rebuilt, and ready.';
-        }
     </script>
 </body>
 
