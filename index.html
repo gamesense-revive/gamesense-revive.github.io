@@ -35,7 +35,7 @@
             box-shadow: 0 10px 30px rgba(0, 255, 102, 0.1);
             border: 1px solid #222;
             border-radius: 4px;
-            background-image: url('menu_screenshot.png');
+            background-image: url('image_3.png'); 
             transition: transform 0.1s ease-out, box-shadow 0.2s ease;
             transform-style: preserve-3d;
             will-change: transform;
@@ -49,6 +49,7 @@
             transition: all 0.2s ease-in-out;
             color: #ccc;
             text-decoration: none;
+            cursor: pointer;
         }
         .pun .inbox p a:hover {
             color: #00ff66 !important;
@@ -70,6 +71,21 @@
         .pun .inbox {
             text-align: center;
             color: #ccc;
+        }
+
+        #build-status {
+            display: none;
+            font-family: monospace;
+            color: #00ff66;
+            margin-top: 15px;
+            font-size: 12px;
+            text-align: left;
+            background: #080808;
+            padding: 12px;
+            border: 1px solid #222;
+            border-radius: 4px;
+            line-height: 1.6;
+            box-shadow: inset 0 0 10px rgba(0, 255, 102, 0.05);
         }
     </style>
 </head>
@@ -95,7 +111,9 @@
                                 <br>
                                 <p><a href="https://discord.gg/MPqZ9McqSA">Join us on discord</a></p>
                                 <br>
-                                <p><a href="https://gamesense-revive.vercel.app/download">Download latest client</a></p>
+                                <p><a id="download-btn">Download latest client</a></p>
+                                
+                                <div id="build-status"></div>
                             </div>
                         </div>
                     </div>
@@ -123,6 +141,45 @@
 
         container.addEventListener('mouseleave', () => {
             card.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+        });
+
+        document.getElementById('download-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            const statusDiv = document.getElementById('build-status');
+            const btn = document.getElementById('download-btn');
+            
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.5';
+            statusDiv.style.display = 'block';
+            
+            const steps = [
+                "> Connecting to secure build server...",
+                "> Requesting unique signature...",
+                "> Mutating binary payload...",
+                "> Injecting junk instructions...",
+                "> Finalizing build..."
+            ];
+            
+            let currentStep = 0;
+            statusDiv.innerHTML = '';
+            
+            const interval = setInterval(() => {
+                if (currentStep < steps.length) {
+                    statusDiv.innerHTML += steps[currentStep] + '<br>';
+                    currentStep++;
+                } else {
+                    clearInterval(interval);
+                    statusDiv.innerHTML += "<span style='color: #fff;'>[+] Done! Starting download...</span>";
+                    setTimeout(() => {
+                        window.location.href = 'https://gamesense-revive.vercel.app/download';
+                        setTimeout(() => {
+                            statusDiv.style.display = 'none';
+                            btn.style.pointerEvents = 'auto';
+                            btn.style.opacity = '1';
+                        }, 2000);
+                    }, 500);
+                }
+            }, 800);
         });
     </script>
 </body>
