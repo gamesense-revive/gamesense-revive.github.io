@@ -16,6 +16,7 @@
             align-items: center;
             background-color: #0c0c0c;
             overflow-x: hidden;
+            transition: background 0.5s ease;
         }
 
         .main-container {
@@ -36,7 +37,7 @@
             border: 1px solid #222;
             border-radius: 4px;
             background-image: url('image_3.png'); 
-            transition: transform 0.1s ease-out, box-shadow 0.2s ease;
+            transition: transform 0.1s ease-out, box-shadow 0.2s ease, filter 0.3s ease;
             transform-style: preserve-3d;
             will-change: transform;
         }
@@ -67,6 +68,7 @@
             border-radius: 4px;
             width: 460px;
             box-sizing: border-box;
+            transition: border-color 0.5s ease, box-shadow 0.5s ease;
         }
         .pun .inbox {
             text-align: center;
@@ -87,6 +89,16 @@
             line-height: 1.6;
             box-shadow: inset 0 0 10px rgba(0, 255, 102, 0.05);
         }
+
+        .easter-egg-active {
+            animation: matrix-glitch 0.15s infinite;
+        }
+
+        @keyframes matrix-glitch {
+            0% { filter: hue-rotate(0deg) saturate(1); }
+            50% { filter: hue-rotate(180deg) saturate(2) contrast(1.5); }
+            100% { filter: hue-rotate(360deg) saturate(1); }
+        }
     </style>
 </head>
 
@@ -101,13 +113,13 @@
                     <div class="menu-preview-container" id="interactive-card"></div>
 
                     <div class="block">
-                        <h2>Status</h2>
-                        <div class="box">
+                        <h2 id="title-header">Status</h2>
+                        <div class="box" id="main-box">
                             <div class="inbox">
                                 <div style="margin-bottom: 15px; font-weight: bold; font-size: 14px;">
-                                    Status: <span style="color: #2ecc71; text-shadow: 0 0 5px rgba(46, 204, 113, 0.4);">● UNDETECTED</span>
+                                    Status: <span id="status-text" style="color: #2ecc71; text-shadow: 0 0 5px rgba(46, 204, 113, 0.4); transition: all 0.3s ease;">● UNDETECTED</span>
                                 </div>
-                                <p>Welcome to GameSense Revive — redesigned, rebuilt, and ready.</p>
+                                <p id="welcome-text">Welcome to GameSense Revive — redesigned, rebuilt, and ready.</p>
                                 <br>
                                 <p><a href="https://discord.gg/MPqZ9McqSA">Join us on discord</a></p>
                                 <br>
@@ -181,6 +193,63 @@
                 }
             }, 800);
         });
+
+        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight'];
+        let konamiIndex = 0;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    triggerEasterEgg();
+                    konamiIndex = 0;
+                }
+            } else {
+                konamiIndex = 0;
+            }
+        });
+
+        function triggerEasterEgg() {
+            const statusText = document.getElementById('status-text');
+            const mainBox = document.getElementById('main-box');
+            const welcomeText = document.getElementById('welcome-text');
+            const titleHeader = document.getElementById('title-header');
+
+            document.body.classList.add('easter-egg-active');
+            card.classList.add('easter-egg-active');
+            
+            statusText.style.color = '#ff0055';
+            statusText.style.textShadow = '0 0 10px #ff0055';
+            statusText.innerText = '● GOD MODE ACTIVATED';
+            
+            mainBox.style.borderColor = '#ff0055';
+            mainBox.style.boxShadow = '0 0 20px rgba(255, 0, 85, 0.3)';
+            
+            titleHeader.innerText = 'FATALITY';
+            welcomeText.innerText = 'You have unlocked the secret state. Tap any key to restore reality.';
+
+            document.addEventListener('keydown', restoreReality, { once: true });
+        }
+
+        function restoreReality() {
+            const statusText = document.getElementById('status-text');
+            const mainBox = document.getElementById('main-box');
+            const welcomeText = document.getElementById('welcome-text');
+            const titleHeader = document.getElementById('title-header');
+
+            document.body.classList.remove('easter-egg-active');
+            card.classList.remove('easter-egg-active');
+
+            statusText.style.color = '#2ecc71';
+            statusText.style.textShadow = '0 0 5px rgba(46, 204, 113, 0.4)';
+            statusText.innerText = '● UNDETECTED';
+
+            mainBox.style.borderColor = '#222';
+            mainBox.style.boxShadow = 'none';
+
+            titleHeader.innerText = 'Status';
+            welcomeText.innerText = 'Welcome to GameSense Revive — redesigned, rebuilt, and ready.';
+        }
     </script>
 </body>
 
