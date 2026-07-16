@@ -5,6 +5,15 @@
     <link rel="stylesheet" type="text/css" href="Cobalt.min.css">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <title>GameSense Revive</title>
+    <style>
+        a {
+            transition: all 0.2s ease-in-out;
+        }
+        a:hover {
+            color: #00ff66 !important;
+            text-shadow: 0 0 8px rgba(0, 255, 102, 0.6);
+        }
+    </style>
 </head>
 
 <body>
@@ -17,6 +26,9 @@
                     <h2>Status</h2>
                     <div class="box">
                         <div class="inbox">
+                            <div style="margin-bottom: 15px; font-weight: bold; font-size: 14px;">
+                                Status: <span style="color: #2ecc71; text-shadow: 0 0 5px rgba(46, 204, 113, 0.4);">● UNDETECTED</span>
+                            </div>
                             <p>The old era is gone. Welcome to GameSense Revive — redesigned, rebuilt, and ready.</p>
                             <br>
                             <p><a href="https://discord.gg/MPqZ9McqSA">Join us on discord</a></p>
@@ -29,18 +41,6 @@
         </div>
         <div class="end-box"></div>
     </div>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const loaderLink = document.getElementById("loader-link");
-            if (loaderLink) {
-                const randomHash = Math.random().toString(16).substring(2, 8);
-                const randomName = `gs_${randomHash}.exe`;
-                
-                loaderLink.setAttribute("download", randomName);
-            }
-        });
-    </script>
 </body>
 
 </html>
