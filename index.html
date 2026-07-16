@@ -4,27 +4,108 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" type="text/css" href="Cobalt.min.css">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <title>GameSense Revive</title>
+    <title>GameSense Revive / Interactive Preview</title>
     <style>
-        a {
-            transition: all 0.2s ease-in-out;
-            cursor: pointer;
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #0c0c0c;
         }
-        a:hover {
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            justify-items: center;
+            gap: 25px;
+        }
+
+        .menu-preview-container {
+            position: relative;
+            width: 800px; 
+            height: 672px;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 0 30px rgba(0, 255, 102, 0.15);
+            border: 1px solid #222;
+            border-radius: 4px;
+            background-image: url('image_3.png'); 
+            overflow: hidden;
+        }
+
+        .interactive-zone {
+            position: absolute;
+            cursor: pointer;
+            transition: background-color 0.1s ease-in-out;
+            box-sizing: border-box;
+        }
+
+        .interactive-zone:hover {
+            background-color: rgba(150, 255, 0, 0.08);
+        }
+
+        .checkbox-zone.active::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 8px;
+            height: 8px;
+            background-color: #96ff00;
+            box-shadow: 0 0 4px #96ff00;
+        }
+
+        .tab-zone {
+            border-radius: 4px;
+        }
+
+        .tab-zone.active {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-left: 2px solid #96ff00;
+        }
+
+        #tab-rage { top: 25px; left: 15px; width: 85px; height: 95px; }
+        #tab-aa { top: 135px; left: 15px; width: 85px; height: 90px; }
+        #tab-visuals { top: 235px; left: 15px; width: 85px; height: 90px; }
+        #tab-misc { top: 335px; left: 15px; width: 85px; height: 90px; }
+        #tab-settings { top: 435px; left: 15px; width: 85px; height: 90px; }
+        #tab-skins { top: 535px; left: 15px; width: 85px; height: 90px; }
+
+        #chk-aimbot-enabled { top: 216px; left: 184px; width: 14px; height: 14px; }
+        #chk-doubletap { top: 563px; left: 184px; width: 14px; height: 14px; }
+        
+        #chk-antiaim { top: 164px; left: 529px; width: 14px; height: 14px; }
+        #chk-autofire { top: 191px; left: 529px; width: 14px; height: 14px; }
+        #chk-silent { top: 244px; left: 529px; width: 14px; height: 14px; }
+        #chk-misses { top: 504px; left: 529px; width: 14px; height: 14px; }
+
+        .pun .inbox p a {
+            transition: all 0.2s ease-in-out;
+            color: #ccc;
+            text-decoration: none;
+        }
+        .pun .inbox p a:hover {
             color: #00ff66 !important;
             text-shadow: 0 0 8px rgba(0, 255, 102, 0.6);
         }
-        #build-status {
-            display: none;
-            font-family: monospace;
-            color: #00ff66;
-            margin-top: 15px;
-            font-size: 12px;
-            text-align: left;
-            background: #111;
-            padding: 10px;
-            border: 1px solid #333;
+
+        .pun .block h2 {
+            text-align: center;
+            color: #eee;
+        }
+        .pun .box {
+            background: #111111;
+            border: 1px solid #222;
+            padding: 20px;
             border-radius: 4px;
+        }
+        .pun .inbox {
+            text-align: center;
+            color: #ccc;
         }
     </style>
 </head>
@@ -35,22 +116,41 @@
         <div class="punwrap">
 
             <div id="brdmain">
-                <div class="block">
-                    <h2>Status</h2>
-                    <div class="box">
-                        <div class="inbox">
-                            <div style="margin-bottom: 15px; font-weight: bold; font-size: 14px;">
-                                Status: <span style="color: #2ecc71; text-shadow: 0 0 5px rgba(46, 204, 113, 0.4);">● UNDETECTED</span>
+                <div class="main-container">
+                    
+                    <div class="menu-preview-container">
+                        <div id="tab-rage" class="interactive-zone tab-zone active"></div>
+                        <div id="tab-aa" class="interactive-zone tab-zone"></div>
+                        <div id="tab-visuals" class="interactive-zone tab-zone"></div>
+                        <div id="tab-misc" class="interactive-zone tab-zone"></div>
+                        <div id="tab-settings" class="interactive-zone tab-zone"></div>
+                        <div id="tab-skins" class="interactive-zone tab-zone"></div>
+
+                        <div id="chk-aimbot-enabled" class="interactive-zone checkbox-zone"></div>
+                        <div id="chk-doubletap" class="interactive-zone checkbox-zone"></div>
+                        
+                        <div id="chk-antiaim" class="interactive-zone checkbox-zone"></div>
+                        <div id="chk-autofire" class="interactive-zone checkbox-zone"></div>
+                        <div id="chk-silent" class="interactive-zone checkbox-zone"></div>
+                        <div id="chk-misses" class="interactive-zone checkbox-zone active"></div>
+                    </div>
+
+                    <div class="block">
+                        <h2>Status</h2>
+                        <div class="box">
+                            <div class="inbox">
+                                <div style="margin-bottom: 15px; font-weight: bold; font-size: 14px;">
+                                    Status: <span style="color: #2ecc71; text-shadow: 0 0 5px rgba(46, 204, 113, 0.4);">● UNDETECTED</span>
+                                </div>
+                                <p>Welcome to GameSense Revive — redesigned, rebuilt, and ready.</p>
+                                <br>
+                                <p><a href="https://discord.gg/MPqZ9McqSA">Join us on discord</a></p>
+                                <br>
+                                <p><a href="https://gamesense-revive.vercel.app/download">Download latest client</a></p>
                             </div>
-                            <p>BananSense gone. Welcome to GameSense Revive — redesigned, rebuilt, and ready.</p>
-                            <br>
-                            <p><a href="https://discord.gg/MPqZ9McqSA">Join us on discord</a></p>
-                            <br>
-                            <p><a id="download-btn">Download latest client</a></p>
-                            
-                            <div id="build-status"></div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -58,43 +158,17 @@
     </div>
 
     <script>
-        document.getElementById('download-btn').addEventListener('click', function(e) {
-            e.preventDefault();
-            const statusDiv = document.getElementById('build-status');
-            const btn = document.getElementById('download-btn');
-            
-            btn.style.pointerEvents = 'none';
-            btn.style.opacity = '0.5';
-            statusDiv.style.display = 'block';
-            
-            const steps = [
-                "> Connecting to secure build server...",
-                "> Requesting unique signature...",
-                "> Mutating binary payload...",
-                "> Injecting junk instructions...",
-                "> Finalizing build..."
-            ];
-            
-            let currentStep = 0;
-            statusDiv.innerHTML = '';
-            
-            const interval = setInterval(() => {
-                if (currentStep < steps.length) {
-                    statusDiv.innerHTML += steps[currentStep] + '<br>';
-                    currentStep++;
-                } else {
-                    clearInterval(interval);
-                    statusDiv.innerHTML += "<span style='color: #fff;'>[+] Done! Starting download...</span>";
-                    setTimeout(() => {
-                        window.location.href = 'https://gamesense-revive.vercel.app/download';
-                        setTimeout(() => {
-                            statusDiv.style.display = 'none';
-                            btn.style.pointerEvents = 'auto';
-                            btn.style.opacity = '1';
-                        }, 2000);
-                    }, 500);
-                }
-            }, 800);
+        document.querySelectorAll('.checkbox-zone').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+
+        document.querySelectorAll('.tab-zone').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab-zone').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
         });
     </script>
 </body>
